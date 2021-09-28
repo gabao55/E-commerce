@@ -11,6 +11,6 @@ def cart_totals(cart):
             if item.get('quantitative_promotional_price')
             else item.get('quantitative_price')
             for item 
-            in cart.valeus()
+            in cart.values()
         ]
     )
