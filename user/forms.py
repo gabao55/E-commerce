@@ -13,7 +13,8 @@ class ProfileForm(forms.ModelForm):
 class UserForm(forms.ModelForm):
     password = forms.CharField(
         required=False,
-        widget=forms.PasswordInput()
+        widget=forms.PasswordInput(),
+        help_text=''
     )
     
     password_confirmation = forms.CharField(
@@ -49,6 +50,7 @@ class UserForm(forms.ModelForm):
         error_msg_email_exists = 'E-mail already registered.'
         error_msg_password_match = "Password and password confirmation doesn't match."
         error_msg_password_short = "Password too short, minimum of 6 characters."
+        error_msg_required_field = "Field required."
 
         # Logged users: update
         if self.user:
@@ -69,8 +71,26 @@ class UserForm(forms.ModelForm):
 
                 if len(password_data) < 6:
                     validation_error_msgs['password'] = error_msg_password_short
+
         else:
-            validation_error_msgs['username'] = 'Test'
+            if user_db:
+                validation_error_msgs['username'] = error_msg_user_exists
+
+            if email_db:
+                validation_error_msgs['email'] = error_msg_email_exists
+
+            if not password_data:
+                validation_error_msgs['password'] = error_msg_required_field
+
+            if not password_confirmation_data:
+                validation_error_msgs['password_confirmation'] = error_msg_required_field
+
+            if password_data != password_confirmation_data:
+                validation_error_msgs['password'] = error_msg_password_match
+                validation_error_msgs['password_confirmation'] = error_msg_password_match
+
+            if len(password_data) < 6:
+                validation_error_msgs['password'] = error_msg_password_short
 
         if validation_error_msgs:
             raise(forms.ValidationError(validation_error_msgs))
