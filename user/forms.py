@@ -44,7 +44,7 @@ class UserForm(forms.ModelForm):
 
 
         user_db = User.objects.filter(username=user_data).first()
-        email_db = User.objects.filter(username=email_data).first()
+        email_db = User.objects.filter(email=email_data).first()
 
         error_msg_user_exists = 'Username already registered.'
         error_msg_email_exists = 'E-mail already registered.'
