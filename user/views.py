@@ -12,7 +12,7 @@ import user
 # Create your views here.
 
 class ProfileBase(View):
-    template_name = 'user\create.html'
+    template_name = 'user/create.html'
     
     def setup(self, *args, **kwargs):
         super().setup(*args, **kwargs)
@@ -44,6 +44,9 @@ class ProfileBase(View):
 
         self.userform = self.context['userform']
         self.profileform = self.context['profileform']
+
+        if self.request.user.is_authenticated:
+            self.template_name = 'user/update.html'
 
         self.render = render(self.request, self.template_name, self.context)
 
@@ -110,10 +113,6 @@ class Create(ProfileBase):
         self.request.session['cart'] = self.cart
         self.request.session.save()
         return self.render
-
-class Update(View):
-    def get(self, *args, **kwargs):
-        return HttpResponse('Update')
 
 class Login(View):
     def get(self, *args, **kwargs):
