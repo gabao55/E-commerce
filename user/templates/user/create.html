@@ -5,16 +5,10 @@
 
     <div class="row">
 
-        {% if not request.user.is_authenticated %}
-            <div class="col-lg">
-                <h1>Login</h1>
-            </div>
-        {% endif %}
-
-        <div class="col-lg">
+        <div class="col-lg mt-3">
 
             {% block titleregister %}
-                <h1>Register</h1>
+                <h4>Register</h4>
             {% endblock titleregister %}
 
             <form method='POST' action="">
