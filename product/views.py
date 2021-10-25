@@ -1,4 +1,5 @@
 from django import http
+from django.contrib.auth.models import User
 from django.contrib.messages.api import error
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.views.generic.list import ListView
@@ -7,7 +8,7 @@ from django.views import View
 from django.http import HttpResponse
 from django.contrib import messages
 from . import models
-from pprint import pp, pprint
+from user.models import UserProfile
 import json
 from django.core import serializers
 
@@ -56,7 +57,6 @@ class AddToCart(View):
         unit_promotional_price = variation.promotional_price
         amount = 1
         slug = product.slug
-        # TODO: Not accepting correctly the image
         image = json.dumps(str(product.image))
         image_url = json.loads(image)
 
@@ -152,4 +152,27 @@ class Cart(View):
 
 class ShopResume(View):
     def get(self, *args, **kwargs):
-        return HttpResponse('Finish')
+        if not self.request.user.is_authenticated:
+            return redirect('profile:login')
+
+        profile = UserProfile.objects.filter(user=self.request.user).exists()
+
+        if not profile:
+            messages.error(
+                self.request,
+                'User without profile.'
+            )
+            return redirect('user:create')
+
+        if not self.request.session.get('cart'):
+            messages.error(
+                self.request,
+                'Empty cart.'
+            )
+            return redirect('product:list')
+
+        context = {
+            'user': self.request.user,
+            'cart': self.request.session['cart'],
+        }
+        return render(self.request, 'product/shopresume.html', context)

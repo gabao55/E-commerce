@@ -3,7 +3,7 @@ from . import views
 
 app_name = 'user'
 
-#TODO: Create different urls for
+#TODO: Create different urls for "forgot my password session"
 urlpatterns = [
     path('', views.Create.as_view(), name='create'),
     path('login/', views.Login.as_view(), name='login'),
