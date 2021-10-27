@@ -58,6 +58,11 @@ class ProfileBase(View):
 class Create(ProfileBase):
     def post(self, *args, **kwargs):
         if not self.userform.is_valid() or not self.profileform.is_valid():
+            messages.error(
+                self.request,
+                'Invalid field(s).'
+            )
+            
             return self.render
 
         username = self.userform.cleaned_data.get('username')
@@ -90,6 +95,11 @@ class Create(ProfileBase):
                 profile = self.profileform.save(commit=False)
                 profile.username = username
                 profile.save()
+            
+            messages.success(
+                self.request,
+                "Update successful."
+            )
 
         # New user
         else:
@@ -100,6 +110,11 @@ class Create(ProfileBase):
             profile = self.profileform.save(commit=False)
             profile.user = user
             profile.save()
+            
+            messages.success(
+                self.request,
+                "Registration successful."
+            )
 
         if password:
             authenticate_user = authenticate(
@@ -114,10 +129,6 @@ class Create(ProfileBase):
         self.request.session['cart'] = self.cart
         self.request.session.save()
 
-        messages.success(
-            self.request,
-            "Registration successful."
-        )
 
         return redirect('user:login')
 
@@ -152,7 +163,10 @@ class Login(View):
 
         messages.success(self.request, "Login successful.")
 
-        return redirect('product:cart')
+        if self.request.session.get('cart', {}):
+            return redirect('product:shopresume')
+
+        return redirect('product:list')
 
     def get(self, *args, **kwargs):
         return self.render
@@ -171,3 +185,5 @@ class Logout(View):
             self.request.session['cart'] = cart
             self.request.session.save()
         return redirect('product:list')
+
+#TODO: Create "forgot my username/password" sessions
