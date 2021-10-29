@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 class Demand(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.FloatField()
+    total_amount = models.PositiveIntegerField()
     status = models.CharField(
         default="C",
         max_length=1,
@@ -34,7 +35,7 @@ class DemandItem(models.Model):
     image = models.CharField(max_length=2000)
 
     def __str__(self):
-        return f"{self.demand.capitalize()}'s item"
+        return f"{self.demand}'s item"
 
     class Meta:
         verbose_name = 'Request item'
