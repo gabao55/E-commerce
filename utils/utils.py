@@ -32,7 +32,6 @@ def reset_password(email, name, username):
     password = "".join(password)
 
     subject = 'E-commerce - Reset your password'
-    #TODO: Fazer com que a mensagem tenha o link pro site
     message = f"Hello {str(name)},\n\nWe've received your request for reseting your password." \
     f"We provided you a temporary password, you can check you informations bellow:\n\n" \
     f"Username: {username}\nTemporary password: {password}\n\n" \
