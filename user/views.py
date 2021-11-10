@@ -1,10 +1,12 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views import View
-from django.http import HttpResponse
+from django.http import HttpResponse, request
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 import copy
+import uuid
+from utils.utils import reset_password
 
 from . import models
 from . import forms
@@ -185,5 +187,83 @@ class Logout(View):
             self.request.session['cart'] = cart
             self.request.session.save()
         return redirect('product:list')
+        
+class ForgotPassword(View): 
+    template_name='user/password_reset.html'
 
-#TODO: Create "forgot my username/password" sessions
+    def post(self, *args, **kwargs):
+        email = self.request.POST.get('email')
+
+        if not User.objects.filter(email=email).first():
+            messages.success(
+                self.request,
+                'Email sent.'
+            )
+            return redirect('user:login')
+
+        user = get_object_or_404(User, email=email)
+
+        name = user.first_name
+        user.set_password(reset_password(email, name, user))
+        user.save()
+        
+        messages.success(
+            self.request,
+            'Email sent.'
+        )
+
+        return redirect('user:login')
+
+    def get(self, *args, **kwargs):
+        return render(self.request, self.template_name)
+
+class ChangePassword(View):
+    template_name = 'user/change_password.html'
+
+    def post(self, *args, **kwargs):
+        username = self.request.POST.get('username')
+        temporary_password = self.request.POST.get('temporary_password')
+        new_password = self.request.POST.get('new_password')
+        new_password2 = self.request.POST.get('new_password2')
+
+        if not username or not temporary_password or not new_password or not new_password2:
+            messages.error(
+                self.request,
+                'Please fill all the fields bellow to proceed.'
+            )
+            return redirect('user:change_password')
+
+        user_authentication = authenticate(
+            self.request,
+            username=username,
+            password=temporary_password
+        )
+
+        user = get_object_or_404(User, username=username)
+
+        if user_authentication is None:
+            messages.error(
+                self.request,
+                'Username or temporary password invalid.'
+            )
+            return redirect('user:change_password')
+
+        if new_password != new_password2:
+            messages.error(
+                self.request,
+                'New password and password confirmation must be the same.'
+            )
+            return redirect('user:change_password')
+
+        user.set_password(new_password)
+        user.save()
+
+        messages.success(
+            self.request,
+            'Password changed successfully.'
+        )
+
+        return redirect('user:login')
+
+    def get(self, *args, **kwargs):
+        return render(self.request, self.template_name)
