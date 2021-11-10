@@ -11,7 +11,6 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE,
                                 verbose_name='User')
     birthday = models.DateField()
-    age = models.PositiveIntegerField()
     cpf = models.CharField(max_length=14)
     address = models.CharField(max_length=50)
     number = models.CharField(max_length=5)
@@ -58,6 +57,17 @@ class UserProfile(models.Model):
 
     def clean(self):
         error_messages = {}
+
+        cpf_sent = self.cpf or None
+        cpf_saved = None
+        profile = UserProfile.objects.filter(cpf=cpf_sent).first()
+
+        if profile:
+            cpf_saved = profile.cpf
+
+            if cpf_saved is not None and self.pk != profile.pk:
+                error_messages['cpf'] = 'CPF already taken.'
+
 
         if not validator.CPF_validate(self.cpf):
             error_messages['cpf'] = 'CPF invalid.'
