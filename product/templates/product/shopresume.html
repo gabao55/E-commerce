@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load omfilters %}
 
+{% block title %}Shop resume | {% endblock title %}
+
 {% block content %}
 
     <div class="row mb-5">
@@ -65,7 +67,7 @@
 
     <div class="row">
         <div class="col">
-            <a class="btn btn-block btn-primary btn-lg" href="{% url 'demand:pay' %}">
+            <a class="btn btn-block btn-primary btn-lg" href="{% url 'demand:savedemand' %}">
                 Choose payment method
             </a>
         </div>
