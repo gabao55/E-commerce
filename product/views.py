@@ -11,7 +11,7 @@ from . import models
 from user.models import UserProfile
 import json
 from django.core import serializers
-
+from django.db.models import Q
 # Create your views here.
 
 class ProductsList(ListView):
@@ -19,7 +19,27 @@ class ProductsList(ListView):
     template_name = 'product/list.html'
     context_object_name = 'products'
     paginate_by = 10
+    ordering = ['-id']
 
+class Search(ProductsList):
+    def get_queryset(self, *args, **kwargs):
+        term = self.request.GET.get('term') or self.request.session['term']
+        qs = super().get_queryset(*args, **kwargs)
+
+        if not term:
+            return qs
+
+        self.request.session['term'] = term
+
+        qs = qs.filter(
+            Q(name__icontains=term) |
+            Q(short_description__icontains=term) |
+            Q(large_description__icontains=term)
+        )
+
+        self.request.session.save()
+
+        return qs
 class ProductDetails(DetailView):
     model = models.Product
     template_name = 'product/detail.html'
@@ -74,14 +94,14 @@ class AddToCart(View):
         cart = self.request.session['cart']
 
         if variation_id in cart:
-            # TODO: variation exists in the chart
+            # TODO: variation exists in the cart
             cart_amount = cart[variation_id]['amount']
             cart_amount += 1
 
             if variation_inventory < cart_amount:
                 messages.warning(
                     self.request,
-                    f'Out of inventory for {cart_amount}x in product "{product_name}"". '
+                    f'Out of inventory for {cart_amount}x in product "{product_name}". '
                     f'We added {variation_inventory}x the product in your cart.'
                 )
                 cart_amount = variation_inventory
@@ -176,3 +196,6 @@ class ShopResume(View):
             'cart': self.request.session['cart'],
         }
         return render(self.request, 'product/shopresume.html', context)
+
+# class CreateCheckoutSessionView(View):
+#     def
