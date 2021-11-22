@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 from django.contrib.messages import constants
-from .key import key
+from .key import key, email_key, email_address
+from .key import stripe_public_key, stripe_secret_key, stripe_webhook_secret
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -163,3 +164,17 @@ SESSION_SAVE_EVERY_REQUEST = False
 # For sessions in files instead of databases
 # SESSION_ENGINE = "django.contrib.sessions.backends.file"
 # SESSION_FILE_PATH = '/home/luizotavio/Desktop/temp'
+
+# SMTP Configuration
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = email_address
+EMAIL_HOST_PASSWORD = email_key
+
+# Stripe payment
+STRIPE_PUBLIC_KEY = stripe_public_key
+STRIPE_SECRET_KEY = stripe_secret_key
+STRIPE_WEBHOOK_SECRET = stripe_webhook_secret
