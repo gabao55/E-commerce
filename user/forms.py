@@ -7,8 +7,8 @@ import user
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = models.UserProfile
-        fields = '__all__'
-        exclude = ('user',)
+        fields = ('__all__')
+        exclude = ('user', 'forget_password_token')
 
 class UserForm(forms.ModelForm):
     password = forms.CharField(
